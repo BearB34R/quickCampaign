@@ -25,17 +25,9 @@ export default function Form() {
       const result = await generateCampaign(formData);
       setCampaign(result.campaign);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(
-          err.message === "Rate limit exceeded. Please try again tomorrow."
-            ? err.message
-            : "An error occurred while generating the campaign. Please try again.",
-        );
-      } else {
-        setError(
-          "An error occurred while generating the campaign. Please try again.",
-        );
-      }
+      setError(
+        "An error occurred while generating the campaign. Please try again.",
+      );
       console.error(err);
     } finally {
       setLoading(false);
