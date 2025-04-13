@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { RocketPencil } from "../components/SVG";
-import { generateCampaign } from "../actions/campaign";
 import ReactMarkdown from "react-markdown";
 
 export default function Form() {
@@ -21,14 +20,37 @@ export default function Form() {
     setError("");
     setCampaign("");
 
+    if (!formData.theme) {
+      setError("Please enter a campaign theme");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await generateCampaign(formData);
-      setCampaign(result.campaign);
+      const response = await fetch("/api/campaign", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setCampaign(data.campaign);
     } catch (err) {
+      console.error("Error generating campaign:", err);
       setError(
         "An error occurred while generating the campaign. Please try again.",
       );
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -127,6 +149,23 @@ export default function Form() {
         {error && (
           <div className="mt-8 w-full max-w-md rounded-lg bg-red-500/10 p-4 text-red-200">
             {error}
+          </div>
+        )}
+
+        {loading && !campaign && (
+          <div className="mt-8 w-full max-w-md rounded-lg border border-white/20 bg-white/10 p-4 text-white">
+            <div className="flex items-center space-x-2">
+              <div className="h-3 w-3 animate-pulse rounded-full bg-white"></div>
+              <div
+                className="h-3 w-3 animate-pulse rounded-full bg-white"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+              <div
+                className="h-3 w-3 animate-pulse rounded-full bg-white"
+                style={{ animationDelay: "0.4s" }}
+              ></div>
+              <span className="ml-2">Generating your campaign...</span>
+            </div>
           </div>
         )}
 
