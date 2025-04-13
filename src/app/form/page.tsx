@@ -12,8 +12,8 @@ export default function Form() {
     difficulty: "medium",
   });
   const [loading, setLoading] = useState(false);
-  const [campaign, setCampaign] = useState("");
   const [error, setError] = useState("");
+  const [campaign, setCampaign] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

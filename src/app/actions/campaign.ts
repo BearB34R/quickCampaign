@@ -40,6 +40,9 @@ export async function generateCampaign({
 
     return { campaign: generatedCampaign };
   } catch (error) {
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`Campaign generation failed: ${error.message}`);
+    }
+    throw new Error("Campaign generation failed");
   }
 }
