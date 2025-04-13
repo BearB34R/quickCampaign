@@ -1,9 +1,5 @@
 import React from "react";
 
-interface SVGProps extends React.HTMLProps<SVGElement> {
-  className?: string;
-}
-
 export function RocketPencil() {
   return (
     <svg

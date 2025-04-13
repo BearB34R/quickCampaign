@@ -39,7 +39,7 @@ export async function generateCampaign({
     }
 
     return { campaign: generatedCampaign };
-  } catch (error) {
+  } catch {
     throw new Error("Failed to generate campaign");
   }
 }
