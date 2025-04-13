@@ -18,24 +18,31 @@ export async function generateCampaign({
   players,
   difficulty,
 }: CampaignParams) {
-  // Check rate limit
-  const ip = (headers().get("x-forwarded-for") || "127.0.0.1").split(",")[0];
-  const key = `rate_limit:${ip}`;
-
-  // Get current count for this IP
-  const currentCount = (await kv.get<number>(key)) || 0;
-
-  if (currentCount >= MAX_REQUESTS_PER_DAY) {
-    throw new Error("Rate limit exceeded. Please try again tomorrow.");
-  }
-
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
   try {
+    const headersList = await headers();
+    const ip = (headersList.get("x-forwarded-for") || "127.0.0.1").split(",")[0];
+    const key = `rate_limit:${ip}`;
+
+    // Get current count for this IP with proper type handling
+    let currentCount = 0;
+    try {
+      const value = await kv.get(key);
+      currentCount = typeof value === 'number' ? value : 0;
+    } catch (e) {
+      console.error('Error fetching rate limit:', e);
+      // Continue with count 0 if KV fetch fails
+    }
+
+    if (currentCount >= MAX_REQUESTS_PER_DAY) {
+      throw new Error("Rate limit exceeded. Please try again tomorrow.");
+    }
+
     // Increment the counter before making the request
     await kv.set(key, currentCount + 1, { ex: RATE_LIMIT_DURATION });
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
     const response = await openai.chat.completions.create({
       model: "o3-mini",
@@ -64,6 +71,9 @@ export async function generateCampaign({
       error instanceof Error &&
       error.message !== "Rate limit exceeded. Please try again tomorrow."
     ) {
+      const headersList = await headers();
+      const ip = (headersList.get("x-forwarded-for") || "127.0.0.1").split(",")[0];
+      const key = `rate_limit:${ip}`;
       await kv.decrby(key, 1);
     }
     throw error;
