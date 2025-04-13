@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { RocketPencil } from "../components/SVG";
+import { StarryBackground } from "../components/StarryBackground";
 import ReactMarkdown from "react-markdown";
 
 export default function Form() {
@@ -58,13 +59,14 @@ export default function Form() {
 
   return (
     <div className="min-h-screen p-4">
-      <div className="flex min-h-screen flex-col items-center justify-center">
-        <div className="mb-8 flex items-center">
-          <h1 className="text-4xl font-bold text-white">Campaign Settings</h1>
-          <div className="transform transition-transform hover:rotate-45">
-            <RocketPencil />
-          </div>
+      <StarryBackground />
+      <div className="relative flex min-h-screen flex-col items-center justify-center">
+        <div className="transform transition-transform hover:rotate-45">
+          <RocketPencil />
         </div>
+        <h1 className="pb-8 text-4xl font-bold text-white">
+          Campaign Settings
+        </h1>
 
         <form
           onSubmit={handleSubmit}

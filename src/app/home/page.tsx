@@ -1,4 +1,5 @@
 import RocketButton from "../components/rocket-button";
+import { StarryBackground } from "../components/StarryBackground";
 
 export default function Home() {
   const CONTENT = {
@@ -9,7 +10,8 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center">
+    <div className="relative flex h-screen flex-col items-center justify-center overflow-hidden">
+      <StarryBackground />
       <div className="flex items-center gap-8">
         <div className="transform transition-transform hover:-rotate-90">
           <RocketButton destination="/form" decoration={true} />
