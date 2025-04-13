@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { RocketPencil } from "../components/SVG";
+import { generateCampaign } from "../actions/campaign";
 
 export default function Form() {
   const [formData, setFormData] = useState({
@@ -9,83 +10,132 @@ export default function Form() {
     players: 4,
     difficulty: "medium",
   });
+  const [loading, setLoading] = useState(false);
+  const [campaign, setCampaign] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+    setLoading(true);
+    setError("");
+    setCampaign("");
+
+    try {
+      const result = await generateCampaign(formData);
+      setCampaign(result.campaign);
+    } catch (err) {
+      setError(
+        "An error occurred while generating the campaign. Please try again.",
+      );
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="mb-8 flex items-center gap-4">
-        <h1 className="text-3xl font-bold">Campaign Settings</h1>
-        <RocketPencil />
-      </div>
-      
-      <form 
-        onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-800 dark:bg-gray-900"
-      >
-        <div className="space-y-2">
-          <label htmlFor="theme" className="block text-sm font-medium">
-            Campaign Theme
-          </label>
-          <input
-            type="text"
-            id="theme"
-            name="theme"
-            value={formData.theme}
-            onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
-            placeholder="e.g., Fantasy, Sci-fi, Horror"
-            className="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-            required
-          />
+    <div className="min-h-screen p-4">
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <div className="mb-8 flex items-center">
+          <h1 className="text-4xl font-bold text-white">Campaign Settings</h1>
+          <div className="transform transition-transform hover:rotate-45">
+            <RocketPencil />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="players" className="block text-sm font-medium">
-            Number of Players
-          </label>
-          <input
-            type="number"
-            id="players"
-            name="players"
-            min="1"
-            max="8"
-            value={formData.players}
-            onChange={(e) => setFormData({ ...formData, players: Number(e.target.value) })}
-            className="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="difficulty" className="block text-sm font-medium">
-            Campaign Difficulty
-          </label>
-          <select
-            id="difficulty"
-            name="difficulty"
-            value={formData.difficulty}
-            onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-            className="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-            required
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-            <option value="expert">Expert</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-md space-y-8 rounded-xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl"
         >
-          Generate Campaign
-        </button>
-      </form>
+          <div className="space-y-2">
+            <label
+              htmlFor="theme"
+              className="block text-sm font-medium text-white"
+            >
+              Campaign Theme
+            </label>
+            <input
+              type="text"
+              id="theme"
+              name="theme"
+              value={formData.theme}
+              onChange={(e) =>
+                setFormData({ ...formData, theme: e.target.value })
+              }
+              placeholder="e.g., Fantasy, Sci-fi, Horror"
+              className="w-full rounded-lg border-0 bg-white/10 p-3 text-white placeholder-white/50 backdrop-blur-sm transition-all focus:ring-2 focus:ring-white/50 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="players"
+              className="block text-sm font-medium text-white"
+            >
+              Number of Players
+            </label>
+            <input
+              type="number"
+              id="players"
+              name="players"
+              min="1"
+              max="8"
+              value={formData.players}
+              onChange={(e) =>
+                setFormData({ ...formData, players: Number(e.target.value) })
+              }
+              className="w-full rounded-lg border-0 bg-white/10 p-3 text-white placeholder-white/50 backdrop-blur-sm transition-all focus:ring-2 focus:ring-white/50 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="difficulty"
+              className="block text-sm font-medium text-white"
+            >
+              Campaign Difficulty
+            </label>
+            <select
+              id="difficulty"
+              name="difficulty"
+              value={formData.difficulty}
+              onChange={(e) =>
+                setFormData({ ...formData, difficulty: e.target.value })
+              }
+              className="w-full rounded-lg border-0 bg-white/10 p-3 text-white backdrop-blur-sm transition-all focus:ring-2 focus:ring-white/50 focus:outline-none"
+              required
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full transform rounded-lg bg-white/20 p-4 text-lg font-semibold text-white backdrop-blur-sm transition-all hover:scale-[1.02] hover:bg-white/30 focus:ring-2 focus:ring-white/50 focus:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? "Generating Campaign..." : "Generate Campaign"}
+          </button>
+        </form>
+
+        {error && (
+          <div className="mt-8 w-full max-w-md rounded-lg bg-red-500/10 p-4 text-red-200">
+            {error}
+          </div>
+        )}
+
+        {campaign && (
+          <div className="mt-8 w-full max-w-md rounded-lg border border-white/20 bg-white/10 p-6 text-white backdrop-blur-xl">
+            <h2 className="mb-4 text-2xl font-bold">Your Campaign</h2>
+            <div className="whitespace-pre-wrap">{campaign}</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
