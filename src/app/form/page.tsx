@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RocketPencil } from "../components/SVG";
 import { generateCampaign } from "../actions/campaign";
+import ReactMarkdown from "react-markdown";
 
 export default function Form() {
   const [formData, setFormData] = useState({
@@ -24,9 +25,17 @@ export default function Form() {
       const result = await generateCampaign(formData);
       setCampaign(result.campaign);
     } catch (err) {
-      setError(
-        "An error occurred while generating the campaign. Please try again.",
-      );
+      if (err instanceof Error) {
+        setError(
+          err.message === "Rate limit exceeded. Please try again tomorrow."
+            ? err.message
+            : "An error occurred while generating the campaign. Please try again.",
+        );
+      } else {
+        setError(
+          "An error occurred while generating the campaign. Please try again.",
+        );
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -130,9 +139,34 @@ export default function Form() {
         )}
 
         {campaign && (
-          <div className="mt-8 w-full max-w-md rounded-lg border border-white/20 bg-white/10 p-6 text-white backdrop-blur-xl">
-            <h2 className="mb-4 text-2xl font-bold">Your Campaign</h2>
-            <div className="whitespace-pre-wrap">{campaign}</div>
+          <div className="mt-8 w-full rounded-lg border border-white/20 bg-white/10 p-6 text-white backdrop-blur-xl">
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => (
+                  <h1 className="mb-4 text-2xl font-bold text-white">
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className="mt-4 mb-3 text-xl font-semibold text-white/90">
+                    {children}
+                  </h2>
+                ),
+                p: ({ children }) => (
+                  <p className="mb-2 text-white/80">{children}</p>
+                ),
+                ul: ({ children }) => (
+                  <ul className="mb-4 ml-4 list-disc space-y-1 text-white/80">
+                    {children}
+                  </ul>
+                ),
+                li: ({ children }) => (
+                  <li className="text-white/80">{children}</li>
+                ),
+              }}
+            >
+              {campaign}
+            </ReactMarkdown>
           </div>
         )}
       </div>
