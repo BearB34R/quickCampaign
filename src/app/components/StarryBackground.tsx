@@ -27,5 +27,9 @@ export function StarryBackground() {
     </div>
   ));
 
-  return <div className="pointer-events-none fixed inset-0">{rows}</div>;
+  return (
+    <div className="pointer-events-none fixed inset-0 -z-10 bg-black">
+      {rows}
+    </div>
+  );
 }
